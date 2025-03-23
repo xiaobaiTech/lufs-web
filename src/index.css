@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  --color-indigo-50: #EEF2FF;
+  --color-indigo-100: #E0E7FF;
+  --color-indigo-500: #6366F1;
+  --color-indigo-600: #4F46E5;
+  --color-indigo-700: #4338CA;
+  --color-gray-600: #4B5563;
+  --color-gray-800: #1F2937;
+  --color-white: #FFFFFF;
+  --color-bg: #F9FAFB;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-gray-800);
+}
+
+.cloud-upload-container {
+  border: 3px dashed var(--color-indigo-500);
+  border-radius: 1rem;
+  padding: 4rem;
+  background-color: var(--color-indigo-50);
+  transition: all 0.3s ease;
+}
+
+.cloud-upload-container:hover {
+  background-color: var(--color-indigo-100);
+}
+
+.cloud-icon {
+  width: 5rem;
+  height: 5rem;
+  color: var(--color-indigo-500);
+  margin-bottom: 1.5rem;
+}
+
+.upload-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-indigo-700);
+  margin-bottom: 0.75rem;
+}
+
+.upload-subtitle {
+  color: var(--color-gray-600);
+  margin-bottom: 1.5rem;
+}
+
+.upload-button {
+  background-color: var(--color-indigo-500);
+  color: var(--color-white);
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.upload-button:hover {
+  background-color: var(--color-indigo-600);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.format-tag {
+  background-color: var(--color-indigo-50);
+  color: var(--color-indigo-700);
+  border-radius: 9999px;
+  padding: 0.375rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
