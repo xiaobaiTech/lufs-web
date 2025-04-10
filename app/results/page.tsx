@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Layout/Header';
 import { AudioAnalysisResult } from '@/types/audio';
 
 export default function ResultsPage() {
-  const [chartInstance, setChartInstance] = useState<Chart | null>(null);
+  const chartRef = useRef<Chart | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AudioAnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -90,12 +90,12 @@ export default function ResultsPage() {
       const ctx = document.getElementById('loudnessChart') as HTMLCanvasElement;
       if (ctx) {
         // 销毁之前的图表实例
-        if (chartInstance) {
-          chartInstance.destroy();
+        if (chartRef.current) {
+          chartRef.current.destroy();
         }
 
         // 创建新的图表实例
-        const newChartInstance = new Chart(ctx, {
+        chartRef.current = new Chart(ctx, {
           type: 'line',
           data: {
             labels: Array.from({length: analysisResult.shortTermLUFSData.length}, (_, i) => 
@@ -150,17 +150,16 @@ export default function ResultsPage() {
             }
           }
         });
-
-        setChartInstance(newChartInstance);
       }
     }
 
     return () => {
-      if (chartInstance) {
-        chartInstance.destroy();
+      if (chartRef.current) {
+        chartRef.current.destroy();
+        chartRef.current = null;
       }
     };
-  }, [analysisResult, chartInstance]);
+  }, [analysisResult]);
 
   const handleNavigate = (page: string) => {
     if (page === 'home') {

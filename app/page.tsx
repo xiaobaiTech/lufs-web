@@ -62,7 +62,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-3 text-[#4338CA]" style={{ fontSize: '24px', fontWeight: 600, marginBottom: '0.75rem', color: '#4338CA' }}>平台兼容性</h3>
               <p className="text-gray-600 leading-relaxed" style={{ color: '#4B5563', lineHeight: '1.6' }}>检查您的音频是否符合YouTube、Spotify、Netflix等平台的音量标准</p>
-              <Link href="/results" style={{
+              <Link href="/faq" style={{
                 display: 'inline-block',
                 backgroundColor: '#5046e5',
                 color: 'white',
@@ -83,17 +83,25 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-3 text-[#4338CA]" style={{ fontSize: '24px', fontWeight: 600, marginBottom: '0.75rem', color: '#4338CA' }}>文件分析</h3>
               <p className="text-gray-600 leading-relaxed" style={{ color: '#4B5563', lineHeight: '1.6' }}>上传音频文件，获取详细的响度分析报告</p>
-              <Link href="/upload" style={{
-                display: 'inline-block',
-                backgroundColor: '#5046e5',
-                color: 'white',
-                padding: '12px 24px',
-                borderRadius: '6px',
-                textDecoration: 'none',
-                fontWeight: '500'
-              }}>
+              <a 
+                href="#" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#5046e5',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
                 开始分析
-              </Link>
+              </a>
             </div>
 
             <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300" style={{ backgroundColor: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', textAlign: 'center' }}>

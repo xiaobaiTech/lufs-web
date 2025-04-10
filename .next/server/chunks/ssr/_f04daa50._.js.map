@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///Users/xiaobai/Documents/proj/lufs/lufs_web_v1/app/layout.tsx"],"sourcesContent":["import type { Metadata } from \"next\";\nimport \"./globals.css\";\n\nexport const metadata: Metadata = {\n  title: \"LUFS Analyzer\",\n  description: \"Analyze audio files for LUFS measurements\",\n};\n\nexport default function RootLayout({\n  children,\n}: Readonly<{\n  children: React.ReactNode;\n}>) {\n  return (\n    <html lang=\"en\">\n      <body className=\"antialiased\" suppressHydrationWarning>\n        {children}\n      </body>\n    </html>\n  );\n}\n"],"names":[],"mappings":";;;;;;;AAGO,MAAM,WAAqB;IAChC,OAAO;IACP,aAAa;AACf;AAEe,SAAS,WAAW,EACjC,QAAQ,EAGR;IACA,qBACE,8OAAC;QAAK,MAAK;kBACT,cAAA,8OAAC;YAAK,WAAU;YAAc,wBAAwB;sBACnD;;;;;;;;;;;AAIT","debugId":null}},
-    {"offset": {"line": 41, "column": 0}, "map": {"version":3,"sources":["file:///Users/xiaobai/Documents/proj/lufs/lufs_web_v1/node_modules/next/src/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.ts"],"sourcesContent":["module.exports = require('../../module.compiled').vendored[\n  'react-rsc'\n].ReactJsxDevRuntime\n"],"names":["module","exports","require","vendored","ReactJsxDevRuntime"],"mappings":";AAAAA,OAAOC,OAAO,GAAGC,QAAQ,4HAAyBC,QAAQ,CACxD,YACD,CAACC,kBAAkB","ignoreList":[0],"debugId":null}}]
-}

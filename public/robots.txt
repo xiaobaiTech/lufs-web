@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://lufs-meter.top
+
+# Sitemaps
+Sitemap: https://lufs-meter.top/sitemap.xml

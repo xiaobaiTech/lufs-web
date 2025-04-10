@@ -1,4 +1,4 @@
-import { AudioAnalysisResult, PlatformCompatibilities, PlatformStatus } from '@/types/audio';
+import { AudioAnalysisResult, PlatformCompatibilities, PlatformStatus } from '../app/types/audio';
 
 /**
  * K加权滤波器系数
@@ -76,7 +76,8 @@ const applyFilter = (data: Float32Array, filter: FilterCoefficients): Float32Arr
     result[i] = sum / a[0];
   }
   
-  return result;
+  // 使用类型断言解决类型兼容性问题
+  return result as Float32Array;
 };
 
 /**
@@ -111,13 +112,16 @@ const calculateIntegratedLUFS = (audioBuffer: AudioBuffer): number => {
       const channelData = audioBuffer.getChannelData(channel);
       const blockData = channelData.slice(block * blockSize, (block + 1) * blockSize);
       
-      const buffer = new ArrayBuffer(blockData.length * 4);
-      const array = new Float32Array(buffer);
-      array.set(blockData);
+      // 创建一个新的数组，不使用 ArrayBuffer
+      const array = new Float32Array(blockData.length);
+      for (let i = 0; i < blockData.length; i++) {
+        array[i] = blockData[i];
+      }
       
-      let filteredData = array;
+      // 应用K加权滤波，使用类型断言
+      let filteredData: Float32Array = array;
       for (const filter of filters) {
-        filteredData = applyFilter(filteredData, filter);
+        filteredData = applyFilter(filteredData, filter) as Float32Array;
       }
       
       const weight = channel < channelWeights.length ? channelWeights[channel] : 1.0;
@@ -180,11 +184,17 @@ const calculateShortTermLUFS = (audioBuffer: AudioBuffer): number[] => {
       const channelData = audioBuffer.getChannelData(channel);
       const windowStart = window * hopSize;
       const windowEnd = Math.min(windowStart + windowSize, audioBuffer.length);
-      const windowData = channelData.slice(windowStart, windowEnd);
       
-      let filteredData = windowData;
+      // 创建一个新的数组，复制数据而不直接使用 slice
+      const windowData = new Float32Array(windowEnd - windowStart);
+      for (let i = windowStart, j = 0; i < windowEnd; i++, j++) {
+        windowData[j] = channelData[i];
+      }
+      
+      // 应用K加权滤波，使用类型断言
+      let filteredData: Float32Array = windowData;
       for (const filter of filters) {
-        filteredData = applyFilter(filteredData, filter);
+        filteredData = applyFilter(filteredData, filter) as Float32Array;
       }
       
       const weight = channel < channelWeights.length ? channelWeights[channel] : 1.0;
