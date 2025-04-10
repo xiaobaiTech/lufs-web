@@ -5,6 +5,8 @@ node_modules
 # Build output
 dist
 build
+.next
+out
 
 # IDE and editor files
 .vscode
@@ -32,3 +34,9 @@ coverage
 
 # Temporary files
 temp
+
+# Next.js specific
+.vercel
+.turbo
+*.tsbuildinfo
+next-env.d.ts
