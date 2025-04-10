@@ -391,7 +391,8 @@ function ResultsPage() {
             }
         };
     }, [
-        analysisResult
+        analysisResult,
+        chartInstance
     ]);
     const handleNavigate = (page)=>{
         if (page === 'home') {

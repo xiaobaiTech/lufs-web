@@ -339,7 +339,7 @@ const LufsFAQ = () => {
                 fontWeight: '600'
               }}>1</span>
               <strong style={{ color: '#4338CA', fontWeight: '600', display: 'block', marginBottom: '8px' }}>上传文件</strong>
-              <p>在首页点击"选择文件"按钮或将文件拖放到指定区域。支持的格式包括MP3、WAV、FLAC、AAC、MP4、MOV和AVI。</p>
+              <p>在首页点击&quot;选择文件&quot;按钮或将文件拖放到指定区域。支持的格式包括MP3、WAV、FLAC、AAC、MP4、MOV和AVI。</p>
             </li>
             <li style={{ 
               marginBottom: '20px',

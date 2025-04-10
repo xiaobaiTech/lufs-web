@@ -377,7 +377,8 @@ function ResultsPage() {
             })["ResultsPage.useEffect"];
         }
     }["ResultsPage.useEffect"], [
-        analysisResult
+        analysisResult,
+        chartInstance
     ]);
     const handleNavigate = (page)=>{
         if (page === 'home') {

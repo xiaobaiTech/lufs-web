@@ -160,7 +160,7 @@ export default function ResultsPage() {
         chartInstance.destroy();
       }
     };
-  }, [analysisResult]);
+  }, [analysisResult, chartInstance]);
 
   const handleNavigate = (page: string) => {
     if (page === 'home') {

@@ -40,10 +40,4 @@ export interface AudioAnalysisResult {
   truePeak: number;
   loudnessRange: number;
   platformCompatibilities: PlatformCompatibilities;
-}
-
-declare global {
-  interface Float32Array {
-    buffer: ArrayBufferLike;
-  }
 } 

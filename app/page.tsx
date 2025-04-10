@@ -6,20 +6,13 @@ import LufsFAQ from '@/components/FAQ/LufsFAQ';
 import Header from '@/components/Layout/Header';
 import Link from 'next/link';
 import { FaMusic, FaUpload, FaQuestionCircle } from 'react-icons/fa';
-import { useState } from 'react';
 import { analyzeAudio } from '@/services/audioAnalyzer';
-import { AudioAnalysisResult } from '@/types/audio';
 
 export default function Home() {
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleFileUpload = async (file: File) => {
     try {
-      setIsAnalyzing(true);
-      setError(null);
-      
       const result = await analyzeAudio(file);
       
       // 将结果存储到localStorage
@@ -31,9 +24,7 @@ export default function Home() {
       // 跳转到结果页面
       router.push('/results');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '分析过程中发生错误');
-    } finally {
-      setIsAnalyzing(false);
+      console.error(err instanceof Error ? err.message : '分析过程中发生错误');
     }
   };
 
