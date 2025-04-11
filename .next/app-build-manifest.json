@@ -1,45 +1,25 @@
 {
   "pages": {
-    "/_not-found/page": [
-      "static/chunks/webpack-68f22649503f8e75.js",
-      "static/chunks/4bd1b696-3fdc007b4ba753ee.js",
-      "static/chunks/684-1b7c68176955df79.js",
-      "static/chunks/main-app-fdf957a2d7de6155.js",
-      "static/chunks/app/_not-found/page-a34d8364e4ec1493.js"
-    ],
     "/layout": [
-      "static/chunks/webpack-68f22649503f8e75.js",
-      "static/chunks/4bd1b696-3fdc007b4ba753ee.js",
-      "static/chunks/684-1b7c68176955df79.js",
-      "static/chunks/main-app-fdf957a2d7de6155.js",
-      "static/css/bd2b7fcc605b81c0.css",
-      "static/chunks/app/layout-131b8c1df34a7a14.js"
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/layout.css",
+      "static/chunks/app/layout.js"
     ],
-    "/faq/page": [
-      "static/chunks/webpack-68f22649503f8e75.js",
-      "static/chunks/4bd1b696-3fdc007b4ba753ee.js",
-      "static/chunks/684-1b7c68176955df79.js",
-      "static/chunks/main-app-fdf957a2d7de6155.js",
-      "static/chunks/8e1d74a4-5c6fff01db5808d1.js",
-      "static/chunks/app/faq/page-e0d249526e5e7391.js"
-    ],
-    "/results/page": [
-      "static/chunks/webpack-68f22649503f8e75.js",
-      "static/chunks/4bd1b696-3fdc007b4ba753ee.js",
-      "static/chunks/684-1b7c68176955df79.js",
-      "static/chunks/main-app-fdf957a2d7de6155.js",
-      "static/chunks/ca377847-76057de27a9a4192.js",
-      "static/chunks/510-95055979968fecb9.js",
-      "static/chunks/app/results/page-5eb0eb0278e6cd52.js"
+    "/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/loading.js"
     ],
     "/page": [
-      "static/chunks/webpack-68f22649503f8e75.js",
-      "static/chunks/4bd1b696-3fdc007b4ba753ee.js",
-      "static/chunks/684-1b7c68176955df79.js",
-      "static/chunks/main-app-fdf957a2d7de6155.js",
-      "static/chunks/8e1d74a4-5c6fff01db5808d1.js",
-      "static/chunks/565-4b4057db0f6fab50.js",
-      "static/chunks/app/page-e0f663fae1ce9cc9.js"
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
+    "/results/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/results/page.js"
     ]
   }
 }

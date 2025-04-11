@@ -1,15 +1,32 @@
 "use client";
 
-import { useState, useRef, DragEvent, ChangeEvent } from 'react';
+import { useState, useRef, DragEvent, ChangeEvent, useEffect } from 'react';
 
 interface FileUploaderProps {
   onFileSelected: (file: File) => void;
+  isProcessing?: boolean;
 }
 
-const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
+const FileUploader = ({ onFileSelected, isProcessing = false }: FileUploaderProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const prevIsProcessingRef = useRef<boolean>(isProcessing);
+
+  // 监听isProcessing变化，当从true变为false时重置组件状态
+  useEffect(() => {
+    // 检查isProcessing是否从true变为false
+    if (prevIsProcessingRef.current && !isProcessing) {
+      // 重置内部状态
+      setIsUploading(false);
+      setSelectedFile(null);
+      setIsDragging(false);
+    }
+    
+    // 更新ref值
+    prevIsProcessingRef.current = isProcessing;
+  }, [isProcessing]);
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -45,6 +62,7 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
     
     if (validFormats.includes(file.type)) {
       setIsUploading(true);
+      setSelectedFile(file);
       // 调用父组件的回调函数处理文件
       onFileSelected(file);
     } else {
@@ -58,6 +76,17 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
     }
   };
 
+  // 格式化文件大小
+  const formatFileSize = (bytes: number): string => {
+    if (bytes >= 1024 * 1024) {
+      return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    } else if (bytes >= 1024) {
+      return `${(bytes / 1024).toFixed(2)} KB`;
+    } else {
+      return `${bytes} bytes`;
+    }
+  };
+
   return (
     <div className="flex-1">
       <div
@@ -65,7 +94,7 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
           min-h-[400px] 
           border-2 border-dashed rounded-2xl
           flex flex-col items-center justify-center
-          transition-all duration-300 ${isUploading ? 'cursor-wait' : 'cursor-pointer'}
+          transition-all duration-300 ${isProcessing || isUploading ? 'cursor-wait' : 'cursor-pointer'}
           ${isDragging ? 'border-[#6366F1] bg-[#E0E7FF]' : 'border-[#818CF8] bg-[#EEF2FF] hover:bg-[#E0E7FF]'}
         `}
         onDragOver={handleDragOver}
@@ -73,11 +102,36 @@ const FileUploader = ({ onFileSelected }: FileUploaderProps) => {
         onDrop={handleDrop}
       >
         <div className="flex flex-col items-center justify-center py-20 px-6">
-          {isUploading ? (
+          {isProcessing || isUploading ? (
             <>
               <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-indigo-600 mb-10"></div>
               <h3 className="text-3xl font-semibold text-[#4338CA] mb-4">正在处理文件...</h3>
-              <p className="text-gray-600 text-xl mb-10">请稍候，我们正在分析您的音频</p>
+              <p className="text-gray-600 text-xl mb-4">请稍候，我们正在分析您的音频</p>
+              
+              {/* 文件信息 */}
+              {selectedFile && (
+                <div className="w-full mt-4 p-4 bg-white rounded-lg shadow-sm">
+                  <h4 className="font-medium text-gray-800 mb-2">文件信息:</h4>
+                  <div className="space-y-1 text-left text-sm">
+                    <p className="text-gray-700">
+                      <span className="font-medium">文件名: </span> 
+                      <span className="text-gray-600">{selectedFile.name}</span>
+                    </p>
+                    <p className="text-gray-700">
+                      <span className="font-medium">大小: </span> 
+                      <span className="text-gray-600">{formatFileSize(selectedFile.size)}</span>
+                    </p>
+                    <p className="text-gray-700">
+                      <span className="font-medium">类型: </span> 
+                      <span className="text-gray-600">{selectedFile.type || '未知'}</span>
+                    </p>
+                    <p className="text-gray-700">
+                      <span className="font-medium">上传时间: </span> 
+                      <span className="text-gray-600">{new Date().toLocaleTimeString()}</span>
+                    </p>
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <>

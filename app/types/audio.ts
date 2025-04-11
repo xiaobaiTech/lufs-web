@@ -28,6 +28,7 @@ export interface PlatformCompatibilities {
   appleMusic: PlatformCompatibility;
   tiktok: PlatformCompatibility;
   broadcast: PlatformCompatibility;
+  [key: string]: PlatformCompatibility;
 }
 
 export interface AudioAnalysisResult {
@@ -40,4 +41,5 @@ export interface AudioAnalysisResult {
   truePeak: number;
   loudnessRange: number;
   platformCompatibilities: PlatformCompatibilities;
+  error?: string;
 } 

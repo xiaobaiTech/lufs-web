@@ -4,152 +4,218 @@ import React, { useState, useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Layout/Header';
-import { AudioAnalysisResult } from '@/types/audio';
+import { AudioAnalysisResult, PlatformCompatibilities, PlatformStatus } from '../types/audio';
+
+// 默认值，在数据无效时使用
+const DEFAULT_ANALYSIS: AudioAnalysisResult = {
+  fileName: '未知文件',
+  fileSize: 0,
+  fileType: '未知类型',
+  duration: 0,
+  integratedLUFS: -14,
+  shortTermLUFSData: [-14, -14],
+  truePeak: 0,
+  loudnessRange: 0,
+  platformCompatibilities: {
+    spotify: {
+      name: 'Spotify',
+      target: -14,
+      compatible: false,
+      status: 'compatible'
+    },
+    youtube: {
+      name: 'YouTube',
+      target: -14,
+      compatible: false,
+      status: 'compatible'
+    },
+    appleMusic: {
+      name: 'Apple Music',
+      target: -16,
+      compatible: false,
+      status: 'compatible'
+    },
+    tiktok: {
+      name: '抖音/TikTok',
+      target: -14,
+      compatible: false,
+      status: 'compatible'
+    },
+    broadcast: {
+      name: '广播标准',
+      target: -23,
+      compatible: false,
+      status: 'compatible'
+    }
+  }
+};
 
 export default function ResultsPage() {
   const chartRef = useRef<Chart | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AudioAnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     // 从 localStorage 获取分析结果
-    const storedResult = localStorage.getItem('audioAnalysisResult');
-    if (storedResult) {
-      try {
-        console.log('原始存储的数据:', storedResult);
-        const parsedResult = JSON.parse(storedResult);
-        console.log('解析后的数据:', parsedResult);
-        console.log('integratedLUFS 类型:', typeof parsedResult.integratedLUFS);
-        console.log('integratedLUFS 值:', parsedResult.integratedLUFS);
-        console.log('platformCompatibilities 类型:', typeof parsedResult.platformCompatibilities);
-        console.log('platformCompatibilities 值:', parsedResult.platformCompatibilities);
-        
-        // 详细验证每个字段
-        const validationErrors = [];
-        
-        if (!parsedResult || typeof parsedResult !== 'object') {
-          validationErrors.push('解析结果不是一个有效的对象');
-        } else {
-          // 文件信息验证
-          if (typeof parsedResult.fileName !== 'string') validationErrors.push('fileName 必须是字符串类型');
-          if (typeof parsedResult.fileSize !== 'number') validationErrors.push('fileSize 必须是数字类型');
-          if (typeof parsedResult.fileType !== 'string') validationErrors.push('fileType 必须是字符串类型');
-          if (typeof parsedResult.duration !== 'number') validationErrors.push('duration 必须是数字类型');
-          
-          // LUFS 数据验证
-          if (typeof parsedResult.integratedLUFS !== 'number') validationErrors.push('integratedLUFS 必须是数字类型');
-          if (!Array.isArray(parsedResult.shortTermLUFSData)) {
-            validationErrors.push('shortTermLUFSData 必须是数组类型');
-          } else if (parsedResult.shortTermLUFSData.some(v => typeof v !== 'number')) {
-            validationErrors.push('shortTermLUFSData 数组的所有元素必须是数字类型');
-          }
-          if (typeof parsedResult.truePeak !== 'number') validationErrors.push('truePeak 必须是数字类型');
-          if (typeof parsedResult.loudnessRange !== 'number') validationErrors.push('loudnessRange 必须是数字类型');
-          
-          // 平台兼容性验证
-          if (!parsedResult.platformCompatibilities || typeof parsedResult.platformCompatibilities !== 'object') {
-            validationErrors.push('platformCompatibilities 必须是一个对象');
-          } else {
-            const requiredPlatforms = ['spotify', 'youtube', 'appleMusic', 'tiktok', 'broadcast'];
-            for (const platform of requiredPlatforms) {
-              if (!parsedResult.platformCompatibilities[platform]) {
-                validationErrors.push(`缺少平台 ${platform} 的兼容性数据`);
-              } else {
-                const platformData = parsedResult.platformCompatibilities[platform];
-                if (typeof platformData.name !== 'string') validationErrors.push(`${platform}.name 必须是字符串类型`);
-                if (typeof platformData.target !== 'number') validationErrors.push(`${platform}.target 必须是数字类型`);
-                if (typeof platformData.compatible !== 'boolean') validationErrors.push(`${platform}.compatible 必须是布尔类型`);
-                if (!['compatible', 'too_loud', 'too_quiet'].includes(platformData.status)) {
-                  validationErrors.push(`${platform}.status 必须是 'compatible', 'too_loud' 或 'too_quiet' 之一`);
-                }
-              }
-            }
-          }
-        }
-
-        if (validationErrors.length === 0) {
-          setAnalysisResult(parsedResult as AudioAnalysisResult);
-        } else {
-          console.error('数据验证错误:', validationErrors);
-          setAnalysisResult(null);
-        }
-      } catch (error) {
-        console.error('解析分析结果失败:', error);
-        setAnalysisResult(null);
+    try {
+      const storedResult = localStorage.getItem('audioAnalysisResult');
+      
+      if (!storedResult) {
+        console.log('未找到存储的分析结果');
+        setError('未找到分析结果，请返回首页上传文件');
+        setIsLoading(false);
+        return;
       }
-    } else {
-      console.log('未找到存储的分析结果');
-      setAnalysisResult(null);
+      
+      // 尝试解析JSON
+      let parsedResult: unknown;
+      try {
+        parsedResult = JSON.parse(storedResult);
+      } catch (e) {
+        console.error('JSON解析失败:', e);
+        setError('数据格式错误，无法解析分析结果');
+        setIsLoading(false);
+        return;
+      }
+      
+      // 验证基本结构
+      if (!parsedResult || typeof parsedResult !== 'object') {
+        setError('无效的分析结果格式');
+        setIsLoading(false);
+        return;
+      }
+      
+      // 类型断言
+      const typedResult = parsedResult as Record<string, unknown>;
+      
+      // 修复或填充缺失的数据
+      const validatedResult: AudioAnalysisResult = {
+        fileName: typeof typedResult.fileName === 'string' ? typedResult.fileName : DEFAULT_ANALYSIS.fileName,
+        fileSize: typeof typedResult.fileSize === 'number' ? typedResult.fileSize : DEFAULT_ANALYSIS.fileSize,
+        fileType: typeof typedResult.fileType === 'string' ? typedResult.fileType : DEFAULT_ANALYSIS.fileType,
+        duration: typeof typedResult.duration === 'number' ? typedResult.duration : DEFAULT_ANALYSIS.duration,
+        integratedLUFS: typeof typedResult.integratedLUFS === 'number' ? typedResult.integratedLUFS : DEFAULT_ANALYSIS.integratedLUFS,
+        shortTermLUFSData: Array.isArray(typedResult.shortTermLUFSData) ? 
+          typedResult.shortTermLUFSData.filter((item): item is number => typeof item === 'number') : 
+          DEFAULT_ANALYSIS.shortTermLUFSData,
+        truePeak: typeof typedResult.truePeak === 'number' ? typedResult.truePeak : DEFAULT_ANALYSIS.truePeak,
+        loudnessRange: typeof typedResult.loudnessRange === 'number' ? typedResult.loudnessRange : DEFAULT_ANALYSIS.loudnessRange,
+        platformCompatibilities: validatePlatformCompatibilities(typedResult.platformCompatibilities)
+      };
+      
+      // 确保shortTermLUFSData至少有一个值
+      if (validatedResult.shortTermLUFSData.length === 0) {
+        validatedResult.shortTermLUFSData = [validatedResult.integratedLUFS];
+      }
+      
+      setAnalysisResult(validatedResult);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('加载分析结果时出错:', error);
+      setError('加载分析结果时发生错误');
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
+
+  // 验证平台兼容性数据
+  function validatePlatformCompatibilities(data: unknown): PlatformCompatibilities {
+    if (!data || typeof data !== 'object') {
+      return DEFAULT_ANALYSIS.platformCompatibilities;
+    }
+    
+    const result: PlatformCompatibilities = { ...DEFAULT_ANALYSIS.platformCompatibilities };
+    const platforms = ['spotify', 'youtube', 'appleMusic', 'tiktok', 'broadcast'];
+    
+    const typedData = data as Record<string, unknown>;
+    
+    for (const platform of platforms) {
+      const platformData = typedData[platform];
+      if (platformData && typeof platformData === 'object') {
+        const typedPlatformData = platformData as Record<string, unknown>;
+        result[platform] = {
+          name: typeof typedPlatformData.name === 'string' ? typedPlatformData.name : DEFAULT_ANALYSIS.platformCompatibilities[platform].name,
+          target: typeof typedPlatformData.target === 'number' ? typedPlatformData.target : DEFAULT_ANALYSIS.platformCompatibilities[platform].target,
+          compatible: typeof typedPlatformData.compatible === 'boolean' ? typedPlatformData.compatible : DEFAULT_ANALYSIS.platformCompatibilities[platform].compatible,
+          status: typeof typedPlatformData.status === 'string' && ['compatible', 'too_loud', 'too_quiet'].includes(typedPlatformData.status as string) ? 
+            typedPlatformData.status as PlatformStatus : DEFAULT_ANALYSIS.platformCompatibilities[platform].status
+        };
+      }
+    }
+    
+    return result;
+  }
 
   useEffect(() => {
     if (analysisResult && analysisResult.shortTermLUFSData) {
-      const ctx = document.getElementById('loudnessChart') as HTMLCanvasElement;
-      if (ctx) {
-        // 销毁之前的图表实例
-        if (chartRef.current) {
-          chartRef.current.destroy();
-        }
+      try {
+        const ctx = document.getElementById('loudnessChart') as HTMLCanvasElement;
+        if (ctx) {
+          // 销毁之前的图表实例
+          if (chartRef.current) {
+            chartRef.current.destroy();
+          }
 
-        // 创建新的图表实例
-        chartRef.current = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: Array.from({length: analysisResult.shortTermLUFSData.length}, (_, i) => 
-              Math.ceil(i * (analysisResult.duration / analysisResult.shortTermLUFSData.length))
-            ),
-            datasets: [
-              {
-                label: '短期响度',
-                data: analysisResult.shortTermLUFSData,
-                borderColor: 'rgba(99, 102, 241, 1)',
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                tension: 0.4,
-                fill: true
-              },
-              {
-                label: '集成响度',
-                data: Array(analysisResult.shortTermLUFSData.length).fill(analysisResult.integratedLUFS),
-                borderColor: 'rgba(220, 38, 38, 1)',
-                borderWidth: 2,
-                borderDash: [5, 5],
-                pointRadius: 0
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                title: {
-                  display: true,
-                  text: 'LUFS'
+          // 创建新的图表实例
+          chartRef.current = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: Array.from({length: analysisResult.shortTermLUFSData.length}, (_, i) => 
+                Math.ceil(i * (analysisResult.duration / analysisResult.shortTermLUFSData.length))
+              ),
+              datasets: [
+                {
+                  label: '短期响度',
+                  data: analysisResult.shortTermLUFSData,
+                  borderColor: 'rgba(99, 102, 241, 1)',
+                  backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                  tension: 0.4,
+                  fill: true
                 },
-                min: Math.floor(Math.min(...analysisResult.shortTermLUFSData, analysisResult.integratedLUFS) - 2),
-                max: Math.ceil(Math.max(...analysisResult.shortTermLUFSData, analysisResult.integratedLUFS) + 2)
+                {
+                  label: '集成响度',
+                  data: Array(analysisResult.shortTermLUFSData.length).fill(analysisResult.integratedLUFS),
+                  borderColor: 'rgba(220, 38, 38, 1)',
+                  borderWidth: 2,
+                  borderDash: [5, 5],
+                  pointRadius: 0
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  title: {
+                    display: true,
+                    text: 'LUFS'
+                  },
+                  min: Math.floor(Math.min(...analysisResult.shortTermLUFSData, analysisResult.integratedLUFS) - 2),
+                  max: Math.ceil(Math.max(...analysisResult.shortTermLUFSData, analysisResult.integratedLUFS) + 2)
+                },
+                x: {
+                  title: {
+                    display: true,
+                    text: '时间 (秒)'
+                  }
+                }
               },
-              x: {
-                title: {
-                  display: true,
-                  text: '时间 (秒)'
+              plugins: {
+                legend: {
+                  position: 'top',
+                },
+                tooltip: {
+                  mode: 'index',
+                  intersect: false,
                 }
               }
-            },
-            plugins: {
-              legend: {
-                position: 'top',
-              },
-              tooltip: {
-                mode: 'index',
-                intersect: false,
-              }
             }
-          }
-        });
+          });
+        }
+      } catch (error) {
+        console.error('创建图表时出错:', error);
       }
     }
 
@@ -168,6 +234,11 @@ export default function ResultsPage() {
       router.push('/results');
     }
   };
+  
+  const clearResults = () => {
+    localStorage.removeItem('audioAnalysisResult');
+    router.push('/');
+  };
 
   if (isLoading) {
     return (
@@ -182,20 +253,29 @@ export default function ResultsPage() {
     );
   }
 
-  if (!analysisResult) {
+  if (error || !analysisResult) {
     return (
       <>
         <Header activePage="results" onNavigate={handleNavigate} />
         <div className="container mx-auto p-8">
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h1 className="text-2xl font-bold mb-6">未找到分析结果</h1>
-            <p className="mb-4">请返回首页上传文件进行分析。</p>
-            <button
-              onClick={() => router.push('/')}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-            >
-              返回首页
-            </button>
+            <h1 className="text-2xl font-bold mb-6">错误</h1>
+            <p className="mb-4 text-red-600">{error || '未找到有效的分析结果'}</p>
+            <p className="mb-6">请返回首页上传文件进行分析。</p>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => router.push('/')}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+              >
+                返回首页
+              </button>
+              <button
+                onClick={clearResults}
+                className="bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200"
+              >
+                清除缓存数据
+              </button>
+            </div>
           </div>
         </div>
       </>
